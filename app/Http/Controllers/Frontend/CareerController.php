@@ -10,13 +10,13 @@ class CareerController extends Controller
 {
     /**
      * Halaman Daftar Karir
-     * File: resources/views/frontend/career/index.blade.php
+     * Tampilkan SEMUA lowongan (aktif & nonaktif)
      */
     public function index()
     {
-        $lowongan = Career::where('status', 'aktif')
-            ->where('batas_lamaran', '>=', now())
-            ->latest('tanggal_dibuat')
+        // Tampilkan semua, tapi aktif di atas
+        $lowongan = Career::orderByRaw("FIELD(status, 'aktif', 'nonaktif')")
+            ->latest('created_at')
             ->paginate(12);
 
         return view('frontend.career.index', compact('lowongan'));
@@ -24,18 +24,16 @@ class CareerController extends Controller
 
     /**
      * Detail Lowongan Karir
-     * File: resources/views/frontend/career/detail.blade.php
+     * Bisa diakses meskipun nonaktif
      */
-    public function detail($slug)
+    public function detail($id_karir)
     {
-        $lowongan = Career::where('slug', $slug)
-            ->where('status', 'aktif')
+        $lowongan = Career::where('id_karir', $id_karir)
             ->firstOrFail();
 
-        // Lowongan terkait (random)
-        $lowonganLain = Career::where('status', 'aktif')
-            ->where('id_karir', '!=', $lowongan->id_karir)
-            ->where('batas_lamaran', '>=', now())
+        // Lowongan terkait (prioritas aktif)
+        $lowonganLain = Career::where('id_karir', '!=', $lowongan->id_karir)
+            ->orderByRaw("FIELD(status, 'aktif', 'nonaktif')")
             ->inRandomOrder()
             ->take(3)
             ->get();

@@ -10,66 +10,53 @@ use Illuminate\Http\Request;
 class NewsController extends Controller
 {
     /**
-     * Halaman Terkini (Landing Page)
-     * File: resources/views/frontend/news/terkini.blade.php
+     * Halaman Terkini - Menampilkan semua berita terbaru
      */
-    public function terkini()
+    public function index()
     {
         // Berita untuk Hero Slider (3 berita terbaru)
-        $beritaHero = News::where('status', 'publish')
-            ->with('category')
-            ->latest('tanggal_publish')
+        $beritaHero = News::with('category')
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
 
-        // Breaking News / Berita Terkini (4 berita)
-        $beritaTerkini = News::where('status', 'publish')
-            ->with('category')
-            ->latest('tanggal_publish')
-            ->skip(3)
-            ->take(4)
+        // Breaking News (8 berita terbaru)
+        $beritaTerkini = News::with('category')
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->take(8)
             ->get();
 
-        // Berita Populer (berdasarkan views)
-        $beritaPopuler = News::where('status', 'publish')
-            ->with('category')
+        // Berita Populer (berdasarkan views - 8 berita)
+        $beritaPopuler = News::with('category')
+            ->where('status', 'published')
             ->orderBy('views', 'desc')
-            ->take(4)
+            ->take(8)
             ->get();
 
-        // Semua kategori dengan jumlah berita
-        $kategori = Category::withCount('news')->get();
-
-        return view('frontend.news.terkini', compact(
-            'beritaHero',
-            'beritaTerkini',
-            'beritaPopuler',
-            'kategori'
-        ));
+        return view('frontend.news.terkini', compact('beritaHero', 'beritaTerkini', 'beritaPopuler'));
     }
 
     /**
      * Detail Berita
-     * File: resources/views/frontend/news/detail.blade.php
      */
-    public function detail($slug)
+    public function show($id)
     {
-        // Cari berita berdasarkan slug
-        $berita = News::where('slug', $slug)
-            ->where('status', 'publish')
-            ->with(['category', 'comments' => function($query) {
-                $query->where('status', 'approved')->latest();
-            }])
+        $berita = News::with(['category', 'comments.user'])
+            ->where('id_berita', $id)
+            ->where('status', 'published')
             ->firstOrFail();
 
-        // Tambah jumlah views
+        // Increment views
         $berita->increment('views');
 
-        // Berita terkait (kategori sama, exclude berita ini)
-        $beritaTerkait = News::where('id_kategori', $berita->id_kategori)
+        // Berita terkait (dari kategori yang sama)
+        $beritaTerkait = News::with('category')
+            ->where('id_kategori', $berita->id_kategori)
             ->where('id_berita', '!=', $berita->id_berita)
-            ->where('status', 'publish')
-            ->latest('tanggal_publish')
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
             ->take(4)
             ->get();
 
@@ -77,24 +64,18 @@ class NewsController extends Controller
     }
 
     /**
-     * Berita per Kategori
-     * File: resources/views/frontend/news/kategori.blade.php
+     * Berita berdasarkan Kategori
      */
-    public function kategori($slug)
+    public function byCategory($id)
     {
-        // Cari kategori berdasarkan slug
-        $kategori = Category::where('slug', $slug)->firstOrFail();
+        $category = Category::where('id_kategori', $id)->firstOrFail();
 
-        // Berita dalam kategori ini dengan pagination
-        $berita = News::where('id_kategori', $kategori->id_kategori)
-            ->where('status', 'publish')
-            ->with('category')
-            ->latest('tanggal_publish')
+        $berita = News::with('category')
+            ->where('id_kategori', $category->id_kategori)
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        // Semua kategori untuk sidebar/menu
-        $semuaKategori = Category::withCount('news')->get();
-
-        return view('frontend.news.kategori', compact('kategori', 'berita', 'semuaKategori'));
+        return view('frontend.news.kategori', compact('category', 'berita'));
     }
 }

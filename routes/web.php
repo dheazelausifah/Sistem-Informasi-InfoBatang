@@ -10,10 +10,12 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CareerController as AdminCareerController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\NewsController;
 use App\Http\Controllers\Frontend\CareerController;
 use App\Http\Controllers\Frontend\ComplaintController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,38 +23,45 @@ use App\Http\Controllers\Frontend\ComplaintController;
 |--------------------------------------------------------------------------
 */
 
-// Home
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Home & Terkini
+Route::get('/', [NewsController::class, 'index'])->name('home');
+Route::get('/terkini', [NewsController::class, 'index'])->name('terkini');
 
-// News (Frontend)
-Route::get('/terkini', [NewsController::class, 'index'])->name('news.index');
-Route::get('/berita/{id}', [NewsController::class, 'show'])->name('news.show');
-Route::get('/kategori/{slug}', [NewsController::class, 'byCategory'])->name('news.category');
+// News Detail & Category
+Route::get('/berita/{id}', [NewsController::class, 'show'])->name('berita.detail');
+Route::get('/kategori/{id}', [NewsController::class, 'byCategory'])->name('berita.kategori');
+
 
 // Career (Frontend)
-Route::get('/career', [CareerController::class, 'index'])->name('career.index');
-Route::get('/career/{id}', [CareerController::class, 'show'])->name('career.show');
+Route::get('/karir/{id_karir}', [CareerController::class, 'detail'])->name('career.detail');
+Route::get('/karir', [CareerController::class, 'index'])->name('karir.index');
+
 
 // Complaint (Frontend)
-Route::get('/pengaduan', [ComplaintController::class, 'index'])->name('complaint.index');
-Route::post('/pengaduan', [ComplaintController::class, 'store'])->name('complaint.store');
+Route::get('/pengaduan', [ComplaintController::class, 'index'])->name('pengaduan.index');
+Route::post('/pengaduan', [ComplaintController::class, 'store'])->name('pengaduan.store');
+
+//About
+Route::get('/tentang', function () {return view('frontend.about.index');})->name('tentang');
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES
+| ADMIN AUTHENTICATION
 |--------------------------------------------------------------------------
 */
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    // Login & Register (Guest)
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    Route::get('/register', [AdminAuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AdminAuthController::class, 'register'])->name('register.submit');
 
-    // ========================================
-    // DASHBOARD
-    // ========================================
+    // Protected Routes
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ========================================
-    // CATEGORIES (Kategori Berita)
-    // ========================================
+    // Categories
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
@@ -60,9 +69,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/categories/{id_kategori}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{id_kategori}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    // ========================================
-    // NEWS (Berita)
-    // ========================================
+    // News
     Route::get('/news', [AdminNewsController::class, 'index'])->name('news.index');
     Route::get('/news/create', [AdminNewsController::class, 'create'])->name('news.create');
     Route::post('/news', [AdminNewsController::class, 'store'])->name('news.store');
@@ -71,23 +78,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/news/{id_berita}', [AdminNewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{id_berita}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
 
-    // ========================================
-    // COMMENTS (Komentar)
-    // ========================================
+    // Comments
     Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
     Route::delete('/comments/{id_komentar}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-    // ========================================
-    // COMPLAINTS (Pengaduan)
-    // ========================================
+    // Complaints
     Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
     Route::get('/complaints/{id_pengaduan}', [AdminComplaintController::class, 'show'])->name('complaints.show');
     Route::post('/complaints/{id_pengaduan}/approve', [AdminComplaintController::class, 'approve'])->name('complaints.approve');
     Route::delete('/complaints/{id_pengaduan}', [AdminComplaintController::class, 'destroy'])->name('complaints.destroy');
 
-    // ========================================
-    // CAREERS (Karir)
-    // ========================================
+    // Careers
     Route::get('/careers', [AdminCareerController::class, 'index'])->name('careers.index');
     Route::get('/careers/create', [AdminCareerController::class, 'create'])->name('careers.create');
     Route::post('/careers', [AdminCareerController::class, 'store'])->name('careers.store');
@@ -96,27 +97,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/careers/{id_karir}', [AdminCareerController::class, 'update'])->name('careers.update');
     Route::delete('/careers/{id_karir}', [AdminCareerController::class, 'destroy'])->name('careers.destroy');
 
-
-    // Profile Routes
-Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
-Route::put('/profile/update', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
-Route::put('/profile/update-password', [App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.update-password');
-Route::post('/profile/upload-image', [App\Http\Controllers\Admin\ProfileController::class, 'uploadImage'])->name('profile.upload-image');
-
-
-    Route::get('login', function () {
-        return view('admin.login');
-    })->name('admin.login');
-
-    //notification
-    // Notifications
-    // Route::get('/notifications/unread', [NotificationController::class, 'getUnread'])
-    //     ->name('notifications.unread');
-    // Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
-    //     ->name('notifications.read');
-    // Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])
-    //     ->name('notifications.markAllRead');
-
+    // Profile
+    Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile/update', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/update-password', [App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/upload-image', [App\Http\Controllers\Admin\ProfileController::class, 'uploadImage'])->name('profile.upload-image');
 });
 
 /*
@@ -128,5 +113,5 @@ Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-    return redirect('/login');
+    return redirect('/');
 })->name('logout');
