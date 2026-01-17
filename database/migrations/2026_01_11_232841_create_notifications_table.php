@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('type'); // 'complaint' atau 'comment'
+            $table->string('type'); // comment, complaint, career, news
             $table->text('message');
-            $table->string('url')->nullable();
+            $table->string('url');
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         });

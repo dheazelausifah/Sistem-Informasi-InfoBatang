@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Complaint;
+use App\Models\News;
 
 class ComplaintController extends Controller
 {
@@ -62,40 +64,61 @@ class ComplaintController extends Controller
         return view('admin.complaints.show', compact('complaint'));
     }
 
-    public function approve($id)
-    {
-        try {
-            // Cek apakah pengaduan ada
-            $complaint = DB::table('pengaduan')
-                ->where('id_pengaduan', $id)
-                ->first();
+    public function approve($id_pengaduan)
+{
+    try {
+        // Gunakan Eloquent
+        $complaint = Complaint::findOrFail($id_pengaduan);
 
-            if (!$complaint) {
-                return redirect()->back()
-                    ->with('error', 'Pengaduan tidak ditemukan');
-            }
-
-            // Update status
-            $affected = DB::table('pengaduan')
-                ->where('id_pengaduan', $id)
-                ->update([
-                    'status' => 'approved',
-                    'id_admin' => 'ADM001',
-                ]);
-
-            if ($affected > 0) {
-                return redirect()->route('admin.complaints.index')
-                    ->with('success', 'Pengaduan berhasil dikonfirmasi!');
-            } else {
-                return redirect()->back()
-                    ->with('error', 'Gagal mengupdate status pengaduan');
-            }
-
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal konfirmasi pengaduan: ' . $e->getMessage());
+        // ✅ Validasi: Cegah duplikasi
+        if ($complaint->news) {
+            return back()->with('error', 'Pengaduan ini sudah dijadikan berita!');
         }
+
+        // ✅ Update status pengaduan
+        $complaint->status = 'approved';
+        $complaint->id_admin = auth()->user()->id_admin ?? 'ADM001';
+        $complaint->save();
+
+        // ✅ Generate ID berita otomatis
+        $lastNews = News::orderBy('id_berita', 'desc')->first();
+        $number = $lastNews ? intval(substr($lastNews->id_berita, 3)) + 1 : 1;
+        $idBerita = 'BRT' . str_pad($number, 3, '0', STR_PAD_LEFT);
+
+        // ✅ Buat berita dari pengaduan
+        News::create([
+            'id_berita'       => $idBerita,
+            'id_pengaduan'    => $complaint->id_pengaduan,
+            'judul'           => $complaint->judul_laporan,
+            'isi'             => $complaint->isi_laporan,
+            'lokasi'          => $complaint->lokasi,
+            'gambar'          => $complaint->lampiran,
+            'tanggal_publish' => now(),
+            'status'          => 'publish',
+            'id_kategori'     => 'KT002', // Default kategori (sesuaikan)
+            'id_admin'        => $complaint->id_admin,
+            'views'           => 0,
+            'created_at'      => now(),
+            'updated_at'      => now()
+        ]);
+
+        // ✅ Create notification
+        \App\Models\Notification::create([
+            'type' => 'news',
+            'message' => 'Pengaduan "' . \Str::limit($complaint->judul_laporan, 50) . '" berhasil dijadikan berita!',
+            'url' => route('admin.news.index'),
+            'is_read' => false
+        ]);
+
+        return redirect()
+            ->route('admin.complaints.index')
+            ->with('success', 'Pengaduan berhasil disetujui dan dijadikan berita!');
+
+    } catch (\Exception $e) {
+        \Log::error('Approve complaint error: ' . $e->getMessage());
+        return back()->with('error', 'Gagal approve pengaduan: ' . $e->getMessage());
     }
+}
 
     public function destroy($id)
     {
@@ -107,6 +130,13 @@ class ComplaintController extends Controller
             if (!$complaint) {
                 return redirect()->back()
                     ->with('error', 'Pengaduan tidak ditemukan');
+            }
+
+            // ✅ PENTING: Cek apakah sudah jadi berita
+            $relatedNews = News::where('id_pengaduan', $id)->first();
+            if ($relatedNews) {
+                return redirect()->back()
+                    ->with('error', 'Tidak dapat menghapus pengaduan yang sudah menjadi berita! Hapus berita terlebih dahulu.');
             }
 
             // Delete lampiran file if exists

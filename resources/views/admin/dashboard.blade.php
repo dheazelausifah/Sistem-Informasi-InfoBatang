@@ -5,48 +5,6 @@
     <!-- Page Title & Global Filter -->
     <div class="flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-2xl font-bold text-gray-800">Admin Dashboard</h2>
-
-        <!-- Global Filter Period -->
-        <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-center gap-3">
-            <!-- Period Buttons -->
-            <div class="flex gap-2">
-                <button type="submit" name="period" value="week"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period') == 'week' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                    Minggu
-                </button>
-                <button type="submit" name="period" value="month"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period', 'month') == 'month' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                    Bulan
-                </button>
-                <button type="submit" name="period" value="year"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period') == 'year' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                    Tahun
-                </button>
-            </div>
-
-            <div class="h-8 w-px bg-gray-300"></div>
-
-            <!-- Custom Date Range -->
-            <div class="flex items-center gap-2">
-                <input type="date" name="start_date" value="{{ request('start_date') }}"
-                       placeholder="Dari"
-                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <span class="text-gray-500">-</span>
-                <input type="date" name="end_date" value="{{ request('end_date') }}"
-                       placeholder="Sampai"
-                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-1">
-                    <i class="fas fa-filter"></i> Terapkan
-                </button>
-            </div>
-
-            @if(request('start_date') || request('end_date') || request('period'))
-            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-1">
-                <i class="fas fa-redo"></i> Reset
-            </a>
-            @endif
-        </form>
     </div>
 
     <!-- Statistics Cards -->
@@ -128,6 +86,49 @@
         </div>
     </div>
 
+     <!-- Global Filter Period -->
+        <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-center gap-3">
+            <!-- Period Buttons -->
+            <div class="flex gap-2">
+                <button type="submit" name="period" value="week"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period') == 'week' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Minggu
+                </button>
+                <button type="submit" name="period" value="month"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period', 'month') == 'month' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Bulan
+                </button>
+                <button type="submit" name="period" value="year"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('period') == 'year' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Tahun
+                </button>
+            </div>
+
+            <div class="h-8 w-px bg-gray-300"></div>
+
+            <!-- Custom Date Range -->
+            <div class="flex items-center gap-2">
+                <input type="date" name="start_date" value="{{ request('start_date') }}"
+                       placeholder="Dari"
+                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <span class="text-gray-500">-</span>
+                <input type="date" name="end_date" value="{{ request('end_date') }}"
+                       placeholder="Sampai"
+                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-1">
+                    <i class="fas fa-filter"></i> Terapkan
+                </button>
+            </div>
+
+            @if(request('start_date') || request('end_date') || request('period'))
+            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-1">
+                <i class="fas fa-redo"></i> Reset
+            </a>
+            @endif
+        </form>
+
+        
     <!-- Charts Section Row 1 -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Line Chart: Tren Berita -->

@@ -2,42 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
-
-    protected $table = 'admin';
-    protected $primaryKey = 'id_admin';
+    protected $table = 'user';
+    protected $primaryKey = 'id_user';
     public $incrementing = false;
     protected $keyType = 'string';
 
+    // Nonaktifkan timestamps karena tabel hanya punya created_at
+    public $timestamps = false;
+
     protected $fillable = [
-        'id_admin',
-        'nama_admin',
+        'id_user',
+        'nama_user',
         'email',
-        'password',
+        'created_at'
     ];
 
-    protected $hidden = [
-        'password',
-    ];
-
-    // Relationships
-    public function news()
+    // Relasi ke komentar
+    public function comments()
     {
-        return $this->hasMany(News::class, 'id_admin', 'id_admin');
-    }
-
-    public function careers()
-    {
-        return $this->hasMany(Career::class, 'id_admin', 'id_admin');
-    }
-
-    public function complaints()
-    {
-        return $this->hasMany(Complaint::class, 'id_admin', 'id_admin');
+        return $this->hasMany(Comment::class, 'id_user', 'id_user');
     }
 }

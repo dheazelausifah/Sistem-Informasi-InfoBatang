@@ -200,7 +200,7 @@
                             <!-- Upload Lampiran -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Upload Lampiran (PNG, JPG, DOC, PDF)
+                                    Upload Lampiran (PNG, JPG, JPEG)
                                 </label>
                                 <div class="relative">
                                     <input type="file"

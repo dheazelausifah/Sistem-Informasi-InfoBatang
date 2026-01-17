@@ -46,11 +46,12 @@ class NewsController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ VALIDASI dengan max 10MB per image
         $request->validate([
             'judul' => 'required|max:255',
             'isi' => 'required',
             'id_kategori' => 'required|exists:kategori,id_kategori',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg|max:10240', // 10MB = 10240KB
             'status' => 'required|in:draft,publish',
             'tanggal_kejadian' => 'nullable|date',
             'lokasi_kejadian' => 'nullable|string|max:255',
@@ -76,18 +77,23 @@ class NewsController extends Controller
             'updated_at' => now()
         ];
 
-        // Upload gambar
+        // ✅ UPLOAD MULTIPLE IMAGES
         if ($request->hasFile('gambar')) {
-            $image = $request->file('gambar');
-            $imageName = time() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
+            $uploadedImages = [];
 
             // Buat folder jika belum ada
             if (!file_exists(public_path('images/news'))) {
                 mkdir(public_path('images/news'), 0777, true);
             }
 
-            $image->move(public_path('images/news'), $imageName);
-            $data['gambar'] = 'images/news/' . $imageName;
+            foreach ($request->file('gambar') as $image) {
+                $imageName = time() . '_' . uniqid() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images/news'), $imageName);
+                $uploadedImages[] = 'images/news/' . $imageName;
+            }
+
+            // Simpan sebagai JSON array
+            $data['gambar'] = json_encode($uploadedImages);
         }
 
         News::create($data);
@@ -111,11 +117,12 @@ class NewsController extends Controller
 
     public function update(Request $request, $id)
     {
+        // ✅ VALIDASI dengan max 10MB per image
         $request->validate([
             'judul' => 'required|max:255',
             'isi' => 'required',
             'id_kategori' => 'required|exists:kategori,id_kategori',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg|max:10240', // 10MB = 10240KB
             'status' => 'required|in:draft,publish',
             'tanggal_kejadian' => 'nullable|date',
             'lokasi_kejadian' => 'nullable|string|max:255',
@@ -135,17 +142,28 @@ class NewsController extends Controller
             'updated_at' => now()
         ];
 
-        // Upload gambar baru
+        // ✅ UPLOAD MULTIPLE IMAGES BARU
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama
-            if ($news->gambar && file_exists(public_path($news->gambar))) {
-                unlink(public_path($news->gambar));
+            if ($news->gambar) {
+                $oldImages = json_decode($news->gambar, true);
+                if (is_array($oldImages)) {
+                    foreach ($oldImages as $oldImage) {
+                        if (file_exists(public_path($oldImage))) {
+                            unlink(public_path($oldImage));
+                        }
+                    }
+                }
             }
 
-            $image = $request->file('gambar');
-            $imageName = time() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/news'), $imageName);
-            $data['gambar'] = 'images/news/' . $imageName;
+            // Upload gambar baru
+            $uploadedImages = [];
+            foreach ($request->file('gambar') as $image) {
+                $imageName = time() . '_' . uniqid() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images/news'), $imageName);
+                $uploadedImages[] = 'images/news/' . $imageName;
+            }
+            $data['gambar'] = json_encode($uploadedImages);
         }
 
         $news->update($data);
@@ -162,9 +180,16 @@ class NewsController extends Controller
             // Hapus semua komentar terkait berita ini terlebih dahulu
             \DB::table('komentar')->where('id_berita', $id)->delete();
 
-            // Hapus gambar
-            if ($news->gambar && file_exists(public_path($news->gambar))) {
-                unlink(public_path($news->gambar));
+            // ✅ Hapus multiple gambar
+            if ($news->gambar) {
+                $images = json_decode($news->gambar, true);
+                if (is_array($images)) {
+                    foreach ($images as $image) {
+                        if (file_exists(public_path($image))) {
+                            unlink(public_path($image));
+                        }
+                    }
+                }
             }
 
             // Hapus berita

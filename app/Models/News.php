@@ -16,23 +16,64 @@ class News extends Model
         'judul',
         'isi',
         'tanggal_kejadian',
-        'lokasi_kejadian',
+        'lokasi',
         'gambar',
         'tanggal_publish',
         'status',
+        'views',
         'id_kategori',
-        'id_admin'
+        'id_admin',
+        'id_pengaduan'
     ];
 
     protected $casts = [
         'tanggal_publish' => 'datetime',
         'tanggal_kejadian' => 'date',
+        'views' => 'integer'
     ];
 
-    // Relationship
+    // Relationship ke Category
     public function category()
     {
         return $this->belongsTo(Category::class, 'id_kategori', 'id_kategori');
+    }
+
+    // Relationship ke Comments
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'id_berita', 'id_berita');
+    }
+
+    // Relationship ke Complaint
+    public function complaint()
+    {
+        return $this->belongsTo(Complaint::class, 'id_pengaduan', 'id_pengaduan');
+    }
+
+    // ✅ Accessor untuk multiple images
+    public function getImagesAttribute()
+    {
+        if (!$this->gambar) {
+            return [asset('images/news/berita.png')];
+        }
+
+        $images = json_decode($this->gambar, true);
+
+        if (!is_array($images)) {
+            // Jika bukan array (gambar lama/single), return as array
+            return [asset($this->gambar)];
+        }
+
+        return array_map(function($image) {
+            return asset($image);
+        }, $images);
+    }
+
+    // ✅ Accessor untuk first image (untuk thumbnail)
+    public function getImageUrlAttribute()
+    {
+        $images = $this->images;
+        return $images[0] ?? asset('images/news/berita.png');
     }
 
     // Accessor untuk status badge
@@ -46,12 +87,14 @@ class News extends Model
         return '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">-</span>';
     }
 
-    // Accessor untuk image URL
-    public function getImageUrlAttribute()
+    // Helper untuk format views
+    public function getFormattedViewsAttribute()
     {
-        if ($this->gambar && file_exists(public_path($this->gambar))) {
-            return asset($this->gambar);
+        if ($this->views >= 1000000) {
+            return round($this->views / 1000000, 1) . 'M';
+        } elseif ($this->views >= 1000) {
+            return round($this->views / 1000, 1) . 'K';
         }
-        return asset('images/news/berita.png'); // Default image
+        return $this->views;
     }
 }

@@ -7,36 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 class Comment extends Model
 {
     protected $table = 'komentar';
+    protected $primaryKey = 'id_komentar';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
-        'news_id',
-        'user_id',
-        'nama',
-        'email',
-        'komentar'
+        'id_komentar',
+        'id_berita',
+        'id_user',
+        'isi_komentar',
+        'tanggal_komentar'
+    ];
+
+    protected $casts = [
+        'tanggal_komentar' => 'datetime'
     ];
 
     public function news()
     {
-        return $this->belongsTo(News::class, 'news_id', 'id');
+        return $this->belongsTo(News::class, 'id_berita', 'id_berita');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    protected static function booted()
-    {
-        static::created(function ($comment) {
-            $newsTitle = $comment->news ? $comment->news->judul : 'berita tidak ditemukan';
-
-            \App\Models\Notification::create([
-                'type' => 'comment',
-                'message' => 'Komentar baru dari ' . $comment->nama . ' pada berita: ' . $newsTitle,
-                'url' => route('admin.comments.index'),
-                'is_read' => false
-            ]);
-        });
-    }
+    // HAPUS semua event booted()
 }

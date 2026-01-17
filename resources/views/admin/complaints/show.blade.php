@@ -110,14 +110,15 @@
             <!-- Action Buttons -->
             <div class="flex gap-3">
                 @if($complaint->status == 'pending')
-                <form action="{{ route('admin.complaints.approve', $complaint->id_pengaduan) }}" method="POST" class="flex-1">
+                <form method="POST" action="{{ route('admin.complaints.approve', $complaint->id_pengaduan) }}">
                     @csrf
-                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
-                        <i class="fas fa-check"></i>
+                    <button type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg">
                         Konfirmasi
                     </button>
                 </form>
                 @endif
+
 
                 <button type="button" onclick="confirmDelete()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
                     <i class="fas fa-trash"></i>

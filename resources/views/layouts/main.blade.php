@@ -174,10 +174,11 @@ body{font-family:'Poppins',sans-serif}
                 Pengaduan
             </a>
 
-            <a href="#"
-               class="nav-link text-sm font-medium text-gray-700">
-                Tentang
-            </a>
+            <a href="{{ route('tentang') }}"
+                class="nav-link text-sm font-medium {{ Route::currentRouteName() == 'tentang' ? 'active' : 'text-gray-700' }}">
+                    Tentang
+                </a>
+
         </div>
 
         <!-- Mobile Menu Button -->
@@ -226,10 +227,11 @@ body{font-family:'Poppins',sans-serif}
                 Pengaduan
             </a>
 
-            <a href="#"
-               class="block py-3 px-4 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+            <a href="{{ route('tentang') }}"
+            class="nav-link text-sm font-medium {{ Route::currentRouteName() == 'tentang' ? 'text-primary' : 'text-gray-700' }}">
                 Tentang
             </a>
+
         </div>
     </div>
 </div>

@@ -2,240 +2,59 @@
 
 @section('title', 'Terkini')
 
-@section('styles')
-<style>
-/* Hero Slider Custom Styles */
-.hero-slider-container {
-    background: #f9fafb;
-    padding: 20px 0;
-}
-
-.hero-slider {
-    position: relative;
-    height: 450px;
-    overflow: hidden;
-    background: #000;
-    border-radius: 12px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.slide {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-
-.slide.active {
-    opacity: 1;
-}
-
-.slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.7;
-}
-
-.slide-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 50px 40px;
-    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
-}
-
-.slide-indicators {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.5);
-    cursor: pointer;
-    transition: all 0.3s;
-    border: none;
-    padding: 0;
-}
-
-.indicator.active {
-    background: white;
-    width: 24px;
-    border-radius: 4px;
-}
-
-/* News Card Styles - Simple */
-.news-card {
-    transition: all 0.2s ease;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-    display: block;
-}
-
-.news-card:hover {
-    border-color: #d1d5db;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.news-img-wrapper {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-    background: #f3f4f6;
-}
-
-.news-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.news-card:hover .news-img {
-    transform: scale(1.05);
-}
-
-.news-content {
-    padding: 14px;
-}
-
-.news-meta-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 10px;
-    color: #6b7280;
-    margin-bottom: 8px;
-}
-
-.news-category {
-    color: #1E88E5;
-    font-weight: 600;
-}
-
-.news-source {
-    font-weight: 500;
-}
-
-.news-date {
-    color: #9ca3af;
-}
-
-.news-title {
-    font-weight: 600;
-    color: #374151;
-    font-size: 14px;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: 42px;
-}
-
-.section-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 24px;
-    position: relative;
-    padding-bottom: 12px;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: #1E88E5;
-    border-radius: 2px;
-}
-
-@media (max-width: 768px) {
-    .hero-slider {
-        height: 300px;
-        border-radius: 8px;
-    }
-    .slide-content {
-        padding: 30px 20px;
-    }
-}
-</style>
-@endsection
-
 @section('content')
 
-<!-- HERO SLIDER WITH BORDER -->
-<div class="hero-slider-container">
+<!-- HERO SLIDER -->
+<div class="bg-gray-50 py-6">
     <div class="container mx-auto px-6">
-        <div class="hero-slider">
-            @php
-                $heroSlides = [
-                    [
-                        'title' => 'Democrats Overhaul Party\'s Primary Calendar, Upending a Political Tradition',
-                        'author' => 'Dina Overa',
-                        'time' => 'Just now',
-                        'image' => 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&h=450&fit=crop'
-                    ],
-                    [
-                        'title' => 'Pembangunan Infrastruktur Jalan Raya Meningkat di Kabupaten Batang',
-                        'author' => 'Admin InfoBatang',
-                        'time' => '2 hours ago',
-                        'image' => 'https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=1200&h=450&fit=crop'
-                    ],
-                    [
-                        'title' => 'Festival Budaya Batang 2026 Akan Digelar Bulan Depan',
-                        'author' => 'Redaksi',
-                        'time' => '5 hours ago',
-                        'image' => 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&h=450&fit=crop'
-                    ],
-                ];
-            @endphp
-
-            @foreach($heroSlides as $index => $slide)
-            <div class="slide {{ $index === 0 ? 'active' : '' }}">
-                <img src="{{ $slide['image'] }}" alt="{{ $slide['title'] }}">
-                <div class="slide-content text-white">
-                    <h1 class="text-2xl md:text-3xl font-bold mb-3 leading-tight max-w-3xl">
-                        {{ $slide['title'] }}
+        <div class="relative h-[450px] overflow-hidden bg-black rounded-xl max-w-[1400px] mx-auto">
+            @forelse($beritaHero as $index => $berita)
+            <div class="absolute w-full h-full opacity-0 transition-opacity duration-1000 hero-slide {{ $index === 0 ? '!opacity-100' : '' }}">
+                <img src="{{ $berita->image_url }}"
+                     alt="{{ $berita->judul }}"
+                     class="w-full h-full object-cover opacity-70"
+                     onerror="this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=450&fit=crop'">
+                <div class="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-black via-black/50 to-transparent">
+                    <h1 class="text-3xl font-bold text-white mb-3 leading-tight max-w-3xl">
+                        {{ $berita->judul }}
                     </h1>
-                    <div class="text-xs opacity-90 flex gap-4 items-center">
+                    <div class="flex gap-4 items-center text-xs text-white/90">
                         <span class="flex items-center gap-1">
                             <i class="bi bi-person-circle"></i>
-                            by {{ $slide['author'] }}
+                            InfoBatang
                         </span>
                         <span class="flex items-center gap-1">
-                            <i class="bi bi-clock"></i>
-                            {{ $slide['time'] }}
+                            <i class="bi bi-calendar3"></i>
+                            {{ $berita->tanggal_publish ? $berita->tanggal_publish->format('d M Y') : '-' }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="bi bi-eye"></i>
+                            {{ number_format($berita->views) }} views
                         </span>
                     </div>
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="absolute w-full h-full opacity-100">
+                <img src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=450&fit=crop"
+                     alt="No news"
+                     class="w-full h-full object-cover opacity-70">
+                <div class="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-black via-black/50 to-transparent">
+                    <h1 class="text-3xl font-bold text-white mb-2">Belum ada berita tersedia</h1>
+                    <p class="text-sm text-white/90">Mohon tunggu update berita terbaru</p>
+                </div>
+            </div>
+            @endforelse
 
-            <div class="slide-indicators">
-                @foreach($heroSlides as $index => $slide)
-                <button class="indicator {{ $index === 0 ? 'active' : '' }}"
-                        onclick="showSlide({{ $index }})"
-                        aria-label="Slide {{ $index + 1 }}">
+            @if($beritaHero->count() > 1)
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                @foreach($beritaHero as $index => $berita)
+                <button class="hero-indicator w-2 h-2 rounded-full bg-white/50 transition-all duration-300 {{ $index === 0 ? '!w-6 !bg-white' : '' }}"
+                        onclick="showHeroSlide({{ $index }})">
                 </button>
                 @endforeach
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -243,80 +62,143 @@
 <div class="bg-white py-10">
     <div class="container mx-auto px-6">
 
+        <!-- SEARCH BAR -->
+        <div class="mb-8">
+            <form action="{{ route('terkini') }}" method="GET" class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <input type="text"
+                           name="search"
+                           value="{{ request('search') }}"
+                           placeholder="Cari berita..."
+                           class="w-full px-5 py-3 pl-12 pr-24 border-2 border-gray-200 rounded-full focus:border-blue-500 focus:outline-none transition-colors">
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                    <button type="submit"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-semibold text-sm">
+                        Cari
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- BREAKING NEWS SECTION -->
         <div class="mb-10">
-            <h2 class="section-title">Breaking News</h2>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 relative pb-3">
+                    Breaking News
+                    <span class="absolute bottom-0 left-0 w-16 h-1 bg-blue-600 rounded-full"></span>
+                </h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                @php
-                    $breakingNews = [
-                        [
-                            'title' => 'News Title Lorem Ipsum Dolor Sit Amet',
-                            'category' => '#Kabar',
-                            'date' => '1 hour Ago',
-                            'image' => 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'News Title Lorem Ipsum Dolor Sit Amet',
-                            'category' => '#Breaking',
-                            'date' => '1 hour Ago',
-                            'image' => 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'News Title Lorem Ipsum Dolor Sit Amet',
-                            'category' => '#Breaking',
-                            'date' => '1 hour Ago',
-                            'image' => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'News Title Lorem Ipsum Dolor Sit Amet',
-                            'category' => '#Breaking',
-                            'date' => '1 hour Ago',
-                            'image' => 'https://images.unsplash.com/photo-1556911261-6bd341186b2f?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'UMKM Batang Raih Penghargaan Nasional',
-                            'category' => '#UMKM',
-                            'date' => '2 hours Ago',
-                            'image' => 'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'Tingkat Pengangguran Menurun di Kabupaten Batang',
-                            'category' => '#Politik',
-                            'date' => '3 hours Ago',
-                            'image' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'Festival Kuliner Nusantara Hadir di Batang',
-                            'category' => '#Kuliner',
-                            'date' => '5 hours Ago',
-                            'image' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop'
-                        ],
-                        [
-                            'title' => 'Tim Sepak Bola Batang Juara Turnamen Regional',
-                            'category' => '#Olahraga',
-                            'date' => '1 day Ago',
-                            'image' => 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=300&fit=crop'
-                        ],
-                    ];
-                @endphp
+                @if(request('search'))
+                <a href="{{ route('terkini') }}"
+                   class="text-sm text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1">
+                    <i class="bi bi-x-circle"></i>
+                    Reset Pencarian
+                </a>
+                @endif
+            </div>
 
-                @foreach($breakingNews as $news)
-                <a href="#" class="news-card">
-                    <div class="news-img-wrapper">
-                        <img src="{{ $news['image'] }}" class="news-img" alt="{{ $news['title'] }}">
+            @if($beritaTerkini->count() > 0)
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                @foreach($beritaTerkini as $berita)
+                <a href="{{ route('berita.detail', $berita->id_berita) }}"
+                   class="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+
+                    <!-- Image -->
+                    <div class="relative h-48 overflow-hidden bg-gray-100">
+                        <img src="{{ $berita->image_url }}"
+                             class="w-full h-full object-cover"
+                             alt="{{ $berita->judul }}"
+                             onerror="this.src='https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop'">
                     </div>
-                    <div class="news-content">
-                        <div class="news-meta-top">
-                            <span class="news-category">{{ $news['category'] }}</span>
-                            <span class="news-source">InfoBatang</span>
-                            <span class="news-date">• {{ $news['date'] }}</span>
+
+                    <!-- Content -->
+                    <div class="p-4">
+                        <!-- Category -->
+                        <span class="inline-block text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2">
+                            {{ $berita->category->nama_kategori }}
+                        </span>
+
+                        <!-- Title -->
+                        <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug mb-3 min-h-[42px] group-hover:text-blue-600 transition-colors">
+                            {{ $berita->judul }}
+                        </h3>
+
+                        <!-- Meta Info -->
+                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                            <span class="font-medium text-gray-700">InfoBatang</span>
+                            <span>•</span>
+                            <span>{{ $berita->tanggal_publish ? $berita->tanggal_publish->format('d M Y') : '-' }}</span>
                         </div>
-                        <h3 class="news-title">{{ $news['title'] }}</h3>
+
+                        <!-- Stats -->
+                        <div class="flex items-center gap-4 text-xs text-gray-500 pt-3 border-t border-gray-100">
+                            <span class="flex items-center gap-1">
+                                <i class="bi bi-eye"></i>
+                                {{ number_format($berita->views) }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i class="bi bi-chat-dots"></i>
+                                {{ $berita->comments_count ?? 0 }}
+                            </span>
+                        </div>
                     </div>
                 </a>
                 @endforeach
             </div>
+
+            <!-- Pagination -->
+            @if($beritaTerkini->hasPages())
+            <div class="flex items-center justify-center gap-2 mt-8">
+                <span class="text-sm text-gray-600 mr-2">Halaman:</span>
+
+                @foreach(range(1, $beritaTerkini->lastPage()) as $page)
+                    @if($page == $beritaTerkini->currentPage())
+                        <button class="w-9 h-9 rounded bg-orange-500 text-white font-semibold text-sm">
+                            {{ $page }}
+                        </button>
+                    @else
+                        <a href="{{ $beritaTerkini->appends(['search' => request('search')])->url($page) }}"
+                           class="w-9 h-9 rounded bg-white border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-orange-500 hover:text-white hover:border-orange-500 transition flex items-center justify-center">
+                            {{ $page }}
+                        </a>
+                    @endif
+                @endforeach
+
+                @if($beritaTerkini->hasMorePages())
+                <a href="{{ $beritaTerkini->appends(['search' => request('search')])->nextPageUrl() }}"
+                   class="ml-2 px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded hover:bg-orange-600 transition">
+                    Selanjutnya
+                </a>
+                @endif
+            </div>
+            @endif
+
+            @else
+            <!-- Empty State -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-16 text-center">
+                <i class="bi bi-newspaper text-6xl text-blue-300 mb-4 block"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">
+                    @if(request('search'))
+                        Tidak ada hasil untuk "{{ request('search') }}"
+                    @else
+                        Belum Ada Berita
+                    @endif
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    @if(request('search'))
+                        Coba kata kunci lain atau lihat semua berita
+                    @else
+                        Berita terkini akan segera hadir di sini
+                    @endif
+                </p>
+                @if(request('search'))
+                <a href="{{ route('terkini') }}"
+                   class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    Lihat Semua Berita
+                </a>
+                @endif
+            </div>
+            @endif
         </div>
 
     </div>
@@ -326,29 +208,34 @@
 
 @section('scripts')
 <script>
-let currentSlide = 0;
-const slides = document.querySelectorAll('.slide');
-const indicators = document.querySelectorAll('.indicator');
+// Hero Slider
+let currentHeroSlide = 0;
+const heroSlides = document.querySelectorAll('.hero-slide');
+const heroIndicators = document.querySelectorAll('.hero-indicator');
 
-if (slides.length > 0 && indicators.length > 0) {
-    function showSlide(n) {
-        slides[currentSlide].classList.remove('active');
-        indicators[currentSlide].classList.remove('active');
+function showHeroSlide(n) {
+    if (heroSlides.length === 0) return;
 
-        currentSlide = n;
-        if (currentSlide >= slides.length) currentSlide = 0;
-        if (currentSlide < 0) currentSlide = slides.length - 1;
-
-        slides[currentSlide].classList.add('active');
-        indicators[currentSlide].classList.add('active');
+    heroSlides[currentHeroSlide].classList.remove('!opacity-100');
+    if (heroIndicators[currentHeroSlide]) {
+        heroIndicators[currentHeroSlide].classList.remove('!w-6', '!bg-white');
     }
 
-    // Auto slide setiap 5 detik
-    if (slides.length > 1) {
-        setInterval(() => {
-            showSlide(currentSlide + 1);
-        }, 5000);
+    currentHeroSlide = n;
+    if (currentHeroSlide >= heroSlides.length) currentHeroSlide = 0;
+    if (currentHeroSlide < 0) currentHeroSlide = heroSlides.length - 1;
+
+    heroSlides[currentHeroSlide].classList.add('!opacity-100');
+    if (heroIndicators[currentHeroSlide]) {
+        heroIndicators[currentHeroSlide].classList.add('!w-6', '!bg-white');
     }
+}
+
+// Auto slide every 5 seconds
+if (heroSlides.length > 1) {
+    setInterval(() => {
+        showHeroSlide(currentHeroSlide + 1);
+    }, 5000);
 }
 </script>
 @endsection

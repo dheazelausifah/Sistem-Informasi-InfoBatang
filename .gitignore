@@ -22,3 +22,13 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+
+# File upload / gambar besar
+/public/uploads/
+/public/images/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif

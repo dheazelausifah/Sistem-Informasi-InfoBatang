@@ -240,12 +240,13 @@
             <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Approve</h3>
             <p class="text-gray-600 mb-1">Apakah Anda yakin?</p>
             <p class="text-gray-600 mb-6">Ingin menyetujui pengaduan: <span id="approveTitle" class="font-semibold text-gray-900"></span>?</p>
+            <p class="text-sm text-gray-500 mb-4">Pengaduan akan otomatis menjadi berita yang dipublikasikan.</p>
 
-            <form id="approveForm" method="POST" action="">
+            <form id="approveForm" method="POST">
                 @csrf
                 <div class="flex gap-3">
                     <button type="button" onclick="closeApproveModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition">
-                        Tidak
+                        Batal
                     </button>
                     <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition">
                         Ya, Setujui
@@ -255,6 +256,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     function changePerPage(value) {
@@ -274,15 +276,19 @@
     }
 
     function confirmApprove(id, title) {
-        console.log('Approve button clicked for ID:', id);
-        document.getElementById('approveTitle').textContent = title;
-        document.getElementById('approveForm').action = `/admin/complaints/${id}/approve`;
-        document.getElementById('approveModal').classList.remove('hidden');
-        console.log('Form action set to:', document.getElementById('approveForm').action);
+    document.getElementById('approveTitle').textContent = title;
+
+    // FIX: Gunakan route helper yang benar
+    const actionUrl = "{{ route('admin.complaints.approve', ':id') }}".replace(':id', id);
+    document.getElementById('approveForm').action = actionUrl;
+
+    document.getElementById('approveModal').classList.remove('hidden');
+
+    console.log('Approve form action:', actionUrl); // Debug
     }
 
     function closeApproveModal() {
-        document.getElementById('approveModal').classList.add('hidden');
+    document.getElementById('approveModal').classList.add('hidden');
     }
 
     // Close modal when clicking outside
@@ -291,7 +297,7 @@
     });
 
     document.getElementById('approveModal').addEventListener('click', function(e) {
-        if (e.target === this) closeApproveModal();
+    if (e.target === this) closeApproveModal();
     });
 
     // Auto hide success alert

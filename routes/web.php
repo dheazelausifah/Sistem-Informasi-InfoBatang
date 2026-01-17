@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CareerController as AdminCareerController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\Admin\NotificationController; // ✅ TAMBAHKAN INI
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\NewsController;
@@ -31,18 +32,21 @@ Route::get('/terkini', [NewsController::class, 'index'])->name('terkini');
 Route::get('/berita/{id}', [NewsController::class, 'show'])->name('berita.detail');
 Route::get('/kategori/{id}', [NewsController::class, 'byCategory'])->name('berita.kategori');
 
+// Comments
+Route::post('/berita/{id}/comment', [NewsController::class, 'storeComment'])->name('berita.comment.store');
 
 // Career (Frontend)
 Route::get('/karir/{id_karir}', [CareerController::class, 'detail'])->name('career.detail');
 Route::get('/karir', [CareerController::class, 'index'])->name('karir.index');
-
 
 // Complaint (Frontend)
 Route::get('/pengaduan', [ComplaintController::class, 'index'])->name('pengaduan.index');
 Route::post('/pengaduan', [ComplaintController::class, 'store'])->name('pengaduan.store');
 
 //About
-Route::get('/tentang', function () {return view('frontend.about.index');})->name('tentang');
+Route::get('/tentang', function () {
+    return view('frontend.about.index');
+})->name('tentang');
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +106,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/profile/update', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/update-password', [App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.update-password');
     Route::post('/profile/upload-image', [App\Http\Controllers\Admin\ProfileController::class, 'uploadImage'])->name('profile.upload-image');
+
+    // NOTIFICATIONS - FIXED
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/unread', [NotificationController::class, 'getUnread'])->name('unread');
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    });
 });
 
 /*

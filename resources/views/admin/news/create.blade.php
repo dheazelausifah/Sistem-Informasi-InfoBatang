@@ -113,17 +113,32 @@
                             <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan waktu sekarang (jika status publish)</p>
                         </div>
 
-                        <!-- Upload Gambar -->
+                        <!-- Upload Multiple Images -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar (PNG, JPG, JPEG)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Upload Gambar (PNG, JPG, JPEG)
+                            </label>
                             <div class="relative">
-                                <input type="file" name="gambar" accept=".png,.jpg,.jpeg"
+                                <input type="file"
+                                    name="gambar[]"
+                                    accept=".png,.jpg,.jpeg"
+                                    multiple
+                                    id="imageInput"
+                                    onchange="previewImages(this)"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('gambar') border-red-500 @enderror">
                                 @error('gambar')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
-                                <p class="text-xs text-gray-500 mt-1">Max: 2MB</p>
+                                @error('gambar.*')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-info-circle"></i> Max: 10MB per file | Bisa pilih beberapa gambar sekaligus (Ctrl+Click)
+                                </p>
                             </div>
+
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="grid grid-cols-3 gap-2 mt-3"></div>
                         </div>
                     </div>
                 </div>
@@ -143,14 +158,80 @@
 </div>
 
 <script>
-    // Auto set tanggal publish jika status = publish
-    document.querySelector('select[name="status"]').addEventListener('change', function() {
-        const tanggalPublish = document.querySelector('input[name="tanggal_publish"]');
-        if (this.value === 'publish' && !tanggalPublish.value) {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            tanggalPublish.value = now.toISOString().slice(0, 16);
+// Auto set tanggal publish jika status = publish
+document.querySelector('select[name="status"]').addEventListener('change', function() {
+    const tanggalPublish = document.querySelector('input[name="tanggal_publish"]');
+    if (this.value === 'publish' && !tanggalPublish.value) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        tanggalPublish.value = now.toISOString().slice(0, 16);
+    }
+});
+
+// Preview Multiple Images
+function previewImages(input) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+
+    if (input.files) {
+        const maxSize = 10 * 1024 * 1024; // 10MB per file
+        let hasError = false;
+
+        Array.from(input.files).forEach((file, index) => {
+            // Validasi ukuran per file
+            if (file.size > maxSize) {
+                alert(`❌ File "${file.name}" terlalu besar!\n\nUkuran: ${(file.size / 1024 / 1024).toFixed(2)} MB\nMaksimal: 10 MB per file`);
+                hasError = true;
+                return;
+            }
+
+            // Validasi tipe file
+            if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+                alert(`❌ File "${file.name}" bukan gambar yang valid!\nHanya menerima: JPG, JPEG, PNG`);
+                hasError = true;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg border-2 border-gray-300 hover:border-blue-500 transition">
+                    <button type="button" onclick="removeImage(${index})"
+                        class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                    <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition">
+                        <p class="text-xs truncate">${file.name}</p>
+                        <p class="text-xs text-green-300">✓ ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Reset input jika ada error
+        if (hasError) {
+            input.value = '';
+            preview.innerHTML = '<p class="text-red-500 text-sm col-span-3 text-center py-4"><i class="fas fa-exclamation-triangle"></i> Upload dibatalkan karena ada file yang tidak valid</p>';
         }
+    }
+}
+
+// Remove image from preview
+function removeImage(index) {
+    const input = document.getElementById('imageInput');
+    const dt = new DataTransfer();
+    const files = Array.from(input.files);
+
+    files.forEach((file, i) => {
+        if (i !== index) dt.items.add(file);
     });
+
+    input.files = dt.files;
+    previewImages(input);
+}
 </script>
 @endsection
